@@ -1,25 +1,19 @@
-const fs = require('fs');
-const request = require('request');
-
 const logger = require('../common/logger');
 const dictionary = require('../dictionary');
+const telegramMessageSender = require('../services/telegramMessageSender');
 
-const WEBHOOK_TELEGRAM_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_API_TOKEN}/setWebhook`;
-const WEBHOOK_SERVER_URL = `https://${process.env.HOST}:${process.env.PORT}${dictionary.TELEGRAM_WEBHOOK_URL_PATH}`;
+const WEBHOOK_SERVER_URL = `https://${process.env.HOST}:${process.env.PORT}${dictionary.URL_FOR_TELEGRAM_WEBHOOK}`;
 
-request.post({
-    url: WEBHOOK_TELEGRAM_URL,
-    strictSSL: false,
-    formData: {
-        url: WEBHOOK_SERVER_URL,
-        certificate: fs.createReadStream(process.env.PATH_TO_CERT)
-    },
-}, function(error, response, body) {
-    logger.info(body);
+telegramMessageSender.setWebhook(
+    WEBHOOK_SERVER_URL,
+    process.env.PATH_TO_CERT,
+    (error, response) => {
+        logger.info(response);
 
-    if (error) {
-        logger.error(error);
-    } else {
-        logger.info(`Telegram will use URL ${WEBHOOK_SERVER_URL} to send webhook requests`);
+        if (error) {
+            logger.error(error);
+        } else {
+            logger.info(`Telegram will use URL ${WEBHOOK_SERVER_URL} to send webhook requests`);
+        }
     }
-});
+);
