@@ -3,3 +3,4 @@
 /config/
 /logs/
 /certs/
+.DS_Store
