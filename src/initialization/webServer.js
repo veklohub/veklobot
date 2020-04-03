@@ -3,7 +3,7 @@ const express = require('express');
 const https = require('https');
 
 const logger = require('../common/logger');
-const exchangeRate = require('../controllers/exchangeRate');
+const messageHandler = require('../controllers/messageHandler');
 const dictionary = require('../dictionary');
 
 const CERT_KEY = process.env.PATH_TO_CERT_KEY;
@@ -30,12 +30,7 @@ app.all(`/`, (request, response) => {
 const URL_FOR_TELEGRAM_WEBHOOK = dictionary.URL_FOR_TELEGRAM_WEBHOOK;
 app.post(URL_FOR_TELEGRAM_WEBHOOK, (request, response) => {
     logger.info(`Get webhook request from Telegram: ${JSON.stringify(request.body)}`);
-    const message = request.body.message;
-    if (message.from.is_bot) {
-        logger.warn('Message from bot!');
-    } else if (message.text && message.text.includes(dictionary.COMMANDS.DOLLAR_RATE)) {
-        exchangeRate(message);
-    }
+    messageHandler(request.body.message);
     response.end();
 }).on('error', (error) => {
     logger.error(error);
