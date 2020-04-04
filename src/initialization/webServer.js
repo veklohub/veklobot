@@ -1,7 +1,6 @@
 const fs = require('fs');
 const express = require('express');
 const https = require('https');
-const config = require('config');
 
 const logger = require('../common/logger');
 const messageHandler = require('../controllers/messageHandler');
@@ -25,10 +24,10 @@ const initWebserver = (webServerConfig) => {
         logger.error(error);
     });
 
-    const PORT = config.get('server.port');
+    const PORT = webServerConfig.port;
     https.createServer({
-        cert: fs.readFileSync(config.get('certificate.pathToCert')),
-        key: fs.readFileSync(config.get('certificate.pathToKey'))
+        cert: fs.readFileSync(webServerConfig.pathToSSLCert),
+        key: fs.readFileSync(webServerConfig.pathToSSLCertKey)
     }, app)
         .listen(PORT, () => {
             logger.info(`Webserver is listening on port ${PORT}`);
