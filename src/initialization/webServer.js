@@ -5,31 +5,35 @@ const config = require('config');
 
 const logger = require('../common/logger');
 const messageHandler = require('../controllers/messageHandler');
-const dictionary = require('../dictionary');
 
 const app = express();
-app.use(express.json());
 
-app.all(`/`, (request, response) => {
-    logger.info('Get request to /');
-    response.send('Hello world!');
-});
+const initWebserver = (webServerConfig) => {
+    app.use(express.json());
 
-const URL_FOR_TELEGRAM_WEBHOOK = dictionary.URL_FOR_TELEGRAM_WEBHOOK;
-app.post(URL_FOR_TELEGRAM_WEBHOOK, (request, response) => {
-    logger.info(`Get webhook request from Telegram: ${JSON.stringify(request.body)}`);
-    messageHandler(request.body.message);
-    response.end();
-}).on('error', (error) => {
-    logger.error(error);
-});
-
-const PORT = config.get('server.port');
-https.createServer({
-    cert: fs.readFileSync(config.get('certificate.pathToCert')),
-    key: fs.readFileSync(config.get('certificate.pathToKey'))
-}, app)
-    .listen(PORT, () => {
-        logger.info(`Webserver is listening on port ${PORT}`);
-        logger.info('Only HTTPS protocol is supported');
+    app.all(`/`, (request, response) => {
+        logger.info('Get request to /');
+        response.send('Hello world!');
     });
+
+    const URL_FOR_TELEGRAM_WEBHOOK = webServerConfig.urlForTelegramWebhook;
+    app.post(URL_FOR_TELEGRAM_WEBHOOK, (request, response) => {
+        logger.info(`Get webhook request from Telegram: ${JSON.stringify(request.body)}`);
+        messageHandler(request.body.message);
+        response.end();
+    }).on('error', (error) => {
+        logger.error(error);
+    });
+
+    const PORT = config.get('server.port');
+    https.createServer({
+        cert: fs.readFileSync(config.get('certificate.pathToCert')),
+        key: fs.readFileSync(config.get('certificate.pathToKey'))
+    }, app)
+        .listen(PORT, () => {
+            logger.info(`Webserver is listening on port ${PORT}`);
+            logger.info('Only HTTPS protocol is supported');
+        });
+};
+
+module.exports = initWebserver;
