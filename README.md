@@ -1,7 +1,7 @@
 # Veklobot
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/veklohub/veklobot)](https://hub.docker.com/repository/docker/veklohub)
-[![Docker Builds](https://img.shields.io/docker/automated/veklohub/veklobot)](https://hub.docker.com/repository/docker/veklohub/veklobot/builds)
+[![Docker Builds](https://img.shields.io/docker/cloud/automated/veklohub/veklobot)](https://hub.docker.com/repository/docker/veklohub/veklobot/builds)
 
 To run project:
 1. install node >= 12.16.1
