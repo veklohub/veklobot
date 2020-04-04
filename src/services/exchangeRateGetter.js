@@ -1,12 +1,15 @@
 const request = require('request');
+const config = require('config');
 
-const logger = require('../common/logger');
-const dictionary = require('../dictionary');
+const { getDateForNbuApi } = require('./dates');
 
 const getNBUExchangeRate = (callback) => {
-    request(dictionary.EXCHANGE_RATE_API, function(error, response, body) {
-        callback(error, body ? JSON.parse(body) : body);
-    });
+    // TODO: check if I can use endpoint without current date
+    request(
+        config.get('exchangeRate.nbuApi').replace('CURRENT_DATE', getDateForNbuApi()),
+        function(error, response, body) {
+            callback(error, body ? JSON.parse(body) : body);
+        });
 };
 
 module.exports = {

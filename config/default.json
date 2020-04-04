@@ -10,5 +10,8 @@
   "telegram": {
     "botToken": "api_token",
     "apiUrl": "https://api.telegram.org/bot"
+  },
+  "exchangeRate": {
+    "nbuApi": "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=CURRENT_DATE&json"
   }
 }

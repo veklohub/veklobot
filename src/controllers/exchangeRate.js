@@ -6,7 +6,7 @@ const getUSDRatwe = (chatId) => {
     exchangeRateGetter.getNBUExchangeRate((error, exchangeRates) => {
         let text = '';
         if (error) {
-            logger.error(`NBU API ${dictionary.EXCHANGE_RATE_API} responsed with the error: ${error}`);
+            logger.error(`NBU API responsed with the error: ${error}`);
 
             text = 'Не могу получить курс доллара';
         } else {
