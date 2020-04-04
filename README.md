@@ -6,6 +6,16 @@ To run project:
     * default.json
     * {deployment}.json
     * local.json
+    
+    You can override oath to directory with config files by setting the `$NODE_CONFIG_DIR` environment variable to the directory containing your configuration files. It can also be set from node, before loading Node-config:
+    
+    `process.env["NODE_CONFIG_DIR"] = __dirname + "/configDir/";`
+    
+    `const config = require("config");`
+    
+    `$NODE_CONFIG_DIR` can be a full path from your root directory, or a relative path from the process if the value begins with ./ or ../. Multiple directories can be configured as well, splitting it using : (on Linux/Mac) or ; (on Windows), or for cross-platform development with the path delimiter. This results in 
+    
+    `process.env["NODE_CONFIG_DIR"] = __dirname + "/configDir/" + require('path').delimiter + __dirname + "/configDir2/";`
 3. Generate SSL certificate. Example of command for generation of self-signed certificate `openssl req -nodes -new -x509 -keyout server.key -out server.cert`. During generation it's important to set up `Common Name (e.g. server FQDN or YOUR name)` (it could be your domain name) and `Email Address`.
 4. Configure path for both, the certificate file and the private key of the certificate. 
 5. Generate token for Telegram bot and add it to configuration file
