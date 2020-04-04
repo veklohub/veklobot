@@ -4,14 +4,17 @@ const exchangeRateGetter = require('../services/exchangeRateGetter');
 
 const getUSDRatwe = (chatId) => {
     exchangeRateGetter.getNBUExchangeRate((error, exchangeRates) => {
+        let text = '';
         if (error) {
-            logger.error(error);
+            text = 'Не могу получить курс доллара';
+        } else {
+            const USDRate = exchangeRates ? exchangeRates.find((rate) => rate.cc === 'USD') : {};
+            text = `Курс доллара (НБУ) сегодня - ${USDRate.rate}`;
         }
 
-        const USDRate = exchangeRates ? exchangeRates.find((rate) => rate.cc === 'USD') : {};
         telegramMessageSender.sendMessage(
             chatId,
-            `Курс доллара (НБУ) сегодня - ${USDRate.rate}`,
+            text,
             (error) => {
                 if (error) {
                     logger.error(error);

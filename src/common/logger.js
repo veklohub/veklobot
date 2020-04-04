@@ -1,4 +1,5 @@
 const winston = require('winston');
+const config = require('config');
 
 const logger = winston.createLogger({
     format: winston.format.combine(
@@ -10,7 +11,7 @@ const logger = winston.createLogger({
     ]
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (config.util.getEnv('NODE_ENV') !== 'production') {
     logger.add(new winston.transports.Console({
         format: winston.format.simple()
     }));

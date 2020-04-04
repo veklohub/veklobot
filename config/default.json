@@ -1,0 +1,13 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": 443
+  },
+  "certificate": {
+    "pathToCert": "./certs/server.cert",
+    "pathToKey": "./certs/server.key"
+  },
+  "telegramAPI": {
+    "botToken": "api_token"
+  }
+}

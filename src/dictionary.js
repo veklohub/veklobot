@@ -1,8 +1,12 @@
+const config = require('config');
+
 const { getDateForNbuApi } = require('./services/dates');
 
+const TELEGRAM_API_TOKEN = config.get('telegramAPI.botToken');
+
 const dictionary = {
-    TELEGRAM_API: `https://api.telegram.org/bot${process.env.TELEGRAM_API_TOKEN}/`,
-    URL_FOR_TELEGRAM_WEBHOOK: `/${process.env.TELEGRAM_API_TOKEN}`,
+    TELEGRAM_API: `https://api.telegram.org/bot${TELEGRAM_API_TOKEN}/`,
+    URL_FOR_TELEGRAM_WEBHOOK: `/${TELEGRAM_API_TOKEN}`,
     COMMANDS: {
         DOLLAR_RATE: '/dollar_rate'
     },

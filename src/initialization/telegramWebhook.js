@@ -1,12 +1,14 @@
+const config = require('config');
+
 const logger = require('../common/logger');
 const dictionary = require('../dictionary');
 const telegramMessageSender = require('../services/telegramMessageSender');
 
-const WEBHOOK_SERVER_URL = `https://${process.env.HOST}:${process.env.PORT}${dictionary.URL_FOR_TELEGRAM_WEBHOOK}`;
+const WEBHOOK_SERVER_URL = `https://${config.get('server.host')}:${config.get('server.port')}${dictionary.URL_FOR_TELEGRAM_WEBHOOK}`;
 
 telegramMessageSender.setWebhook(
     WEBHOOK_SERVER_URL,
-    process.env.PATH_TO_CERT,
+    config.get('certificate.pathToCert'),
     (error, response) => {
         logger.info(response);
 
