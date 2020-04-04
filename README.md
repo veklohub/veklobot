@@ -22,3 +22,13 @@ To run project:
 6. Add additional configuration parameters if you want to rewrite some default ones
 7. `npm i`
 8. `npm start`
+
+## Docker
+
+Build image
+```docker build -t veklohub/veklobot .```
+
+Create ```config``` and ```certs``` dirs, where you've placed mentioned above files.
+
+Run docker
+```docker run -p host_port:8443 -ti -v `pwd`/certs:/opt/app/certs -v `pwd`/config:/opt/app/config veklohub/veklobot:latest```

@@ -1,4 +1,4 @@
-FROM node:lts AS builder
+FROM node:lts
 
 WORKDIR /opt/app
 
@@ -8,8 +8,4 @@ COPY index.js index.js
 
 RUN npm install
 
-
 CMD [ "node", "index.js" ]
-
-# docker build -t veklohub/veklobot . 
-# docker run -p host_port:port_in_docker -v `pwd`/config:/opt/app/config:ro,z -ti veklohub/veklobot:latest
