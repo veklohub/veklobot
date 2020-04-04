@@ -1,13 +1,14 @@
 {
   "server": {
     "host": "localhost",
-    "port": 443
+    "port": 8443
   },
   "certificate": {
     "pathToCert": "./certs/server.cert",
     "pathToKey": "./certs/server.key"
   },
-  "telegramAPI": {
-    "botToken": "api_token"
+  "telegram": {
+    "botToken": "api_token",
+    "apiUrl": "https://api.telegram.org/bot"
   }
 }

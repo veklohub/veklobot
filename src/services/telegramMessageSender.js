@@ -1,24 +1,25 @@
 const fs = require('fs');
 const request = require('request');
+const config = require('config');
 
-const dictionary = require('../dictionary');
+const TELEGRAM_API_URL = `${config.get('telegram.apiUrl')}${config.get('telegram.botToken')}/`;
 
 const setWebhook = (serverURLForWebhook, pathToCert, callback) => {
     request.post({
-        url: `${dictionary.TELEGRAM_API}setWebhook`,
+        url: `${TELEGRAM_API_URL}setWebhook`,
         strictSSL: false,
         formData: {
             url: serverURLForWebhook,
             certificate: fs.createReadStream(pathToCert)
         },
     }, function(error, response, body) {
-        callback(error, body);
+        callback(error, JSON.parse(body));
     });
 };
 
 const sendMessage = (chatId, message, callback) => {
     request.post({
-        url: `${dictionary.TELEGRAM_API}sendMessage`,
+        url: `${TELEGRAM_API_URL}sendMessage`,
         strictSSL: false,
         json: {
             chat_id: chatId,

@@ -17,7 +17,7 @@ if (!fs.existsSync(CERT_KEY) || !fs.existsSync(CERT)) {
     process.exit();
 }
 
-if (config.get('telegramAPI.botToken') === 'api_token') {
+if (config.get('telegram.botToken') === 'api_token') {
     logger.error('You have to set up TELEGRAM_API_TOKEN in env config');
     process.exit();
 }
