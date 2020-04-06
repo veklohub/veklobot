@@ -2,7 +2,7 @@ const logger = require('../common/logger');
 const telegramMessageSender = require('../services/telegramMessageSender');
 const exchangeRateGetter = require('../services/exchangeRateGetter');
 
-const getUSDRatwe = (chatId) => {
+const getUSDRate = (chatId) => {
     exchangeRateGetter.getNBUExchangeRate((error, exchangeRates) => {
         let text = '';
         if (error) {
@@ -30,5 +30,5 @@ const getUSDRatwe = (chatId) => {
 };
 
 module.exports = {
-    getUSDRatwe
+    getUSDRate
 };

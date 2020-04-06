@@ -4,12 +4,14 @@ const jobs = require('./jobs');
 const commands = require('../consts/commands');
 
 const messageHandler = (message) => {
-    if (message.from.is_bot) {
-        logger.warn('Message from bot!');
-    } else if (message.text && message.text.includes(commands.DOLLAR_RATE)) {
-        exchangeRate.getUSDRatwe(message.chat.id);
+    if (!message || !message.text || !message.chat || !message.chat.id || !message.from) {
+        logger.warn(`Got strange empty message: ${message}`);
+    } else if (message.from.is_bot) {
+        logger.warn(`Message from bot, didn't handle it: ${message}`);
+    } else if (message.text.includes(commands.DOLLAR_RATE)) {
+        exchangeRate.getUSDRate(message.chat.id);
 
-        jobs.startUSDRateJob(message.chat.id);
+        jobs.addJob('USDRate', message.chat.id);
     }
 };
 

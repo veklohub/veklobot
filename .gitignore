@@ -4,3 +4,4 @@
 /logs/
 /certs/
 .DS_Store
+/.nyc_output/
