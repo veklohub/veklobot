@@ -11,7 +11,7 @@ const messageHandler = (message) => {
     } else if (message.text.includes(commands.DOLLAR_RATE)) {
         exchangeRate.getUSDRate(message.chat.id);
 
-        jobs.startUSDRateJob(message.chat.id);
+        jobs.addJob('USDRate', message.chat.id);
     }
 };
 
