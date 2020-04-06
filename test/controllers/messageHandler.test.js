@@ -20,7 +20,7 @@ describe('messageHandler', function() {
         sandbox = sinon.createSandbox();
         loggernWarnMock = sandbox.stub(logger, 'warn');
         getUSDRateMock = sandbox.stub(exchangeRate, 'getUSDRate');
-        startUSDRateJobMock = sandbox.stub(jobs, 'startUSDRateJob');
+        startUSDRateJobMock = sandbox.stub(jobs, 'addJob');
     });
 
     after(() => {

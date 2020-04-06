@@ -1,14 +1,19 @@
 var { CronJob } = require('cron');
+const config = require('config');
 
 const logger = require('../common/logger');
 const exchangeRate = require('./exchangeRate');
 
 const startUSDRateJob = (chatId) => {
-    const job = new CronJob('0 0 10 * * 1-5', function() {
+    const cronPattern = '0 0 10 * * 1-5';
+    const timezone = config.get('job.timeZone');
+    const job = new CronJob(cronPattern, function() {
         logger.info(`Planned job startUSDRateJob for ${chatId} is run`);
         exchangeRate.getUSDRate(chatId);
-    });
+    }, null, true, timezone);
     job.start();
+
+    logger.info(`Added new job USDRate for chat id ${chatId}. Cron pattern for job is  ${cronPattern}, timexone = ${timezone}`);
 };
 
 const existingJobsList = [];
@@ -33,7 +38,6 @@ const addJob = (jobName, chatId) => {
         name: jobName,
         chatId
     });
-    logger.info(`Added new job ${jobName} for chat id ${chatId}`);
 };
 
 module.exports = {
