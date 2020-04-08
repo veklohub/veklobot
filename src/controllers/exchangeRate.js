@@ -2,8 +2,25 @@ const logger = require('../common/logger');
 const telegramMessageSender = require('../services/telegramMessageSender');
 const exchangeRateGetter = require('../services/exchangeRateGetter');
 
+const callbackRetry = (fn, callback, retriesCount, ms) => {
+    logger.info('Sending request to NBU API for exchange rate');
+    ms = ms || 10;
+    retriesCount = retriesCount || 3;
+    fn((error, result) => {
+        if (error && retriesCount > 0) {
+            logger.error(`NBU API responsed with the error: ${error}`);
+            logger.info(`Retrying in ${ms}ms...`);
+            setTimeout(() => {
+                callbackRetry(fn, callback, retriesCount - 1, ms);
+            }, ms);
+        } else {
+            callback(error, result);
+        }
+    });
+};
+
 const getUSDRate = (chatId) => {
-    exchangeRateGetter.getNBUExchangeRate((error, exchangeRates) => {
+    callbackRetry(exchangeRateGetter.getNBUExchangeRate,(error, exchangeRates) => {
         let text = '';
         if (error) {
             logger.error(`NBU API responsed with the error: ${error}`);
