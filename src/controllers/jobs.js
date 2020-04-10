@@ -3,6 +3,7 @@ const config = require('config');
 
 const logger = require('../common/logger');
 const exchangeRate = require('./exchangeRate');
+const jobHandlersList = require('../consts/jobHandlers');
 
 const startUSDRateJob = (chatId) => {
     const cronPattern = '0 0 10 * * 1-5';
@@ -13,16 +14,16 @@ const startUSDRateJob = (chatId) => {
     }, null, true, timezone);
     job.start();
 
-    logger.info(`Added new job USDRate for chat id ${chatId}. Cron pattern for job is  ${cronPattern}, timexone = ${timezone}`);
+    logger.info(`Added new job USDRate for chat id ${chatId}. Cron pattern for job is  ${cronPattern}, timezone = ${timezone}`);
 };
 
 const existingJobsList = [];
-const jobHandlers = {
-    USDRate: startUSDRateJob
+const jobHandlersMapping = {
+    [jobHandlersList.USD_RATE]: startUSDRateJob
 };
 
 const addJob = (jobName, chatId) => {
-    if (!jobName || !chatId || !jobHandlers[jobName]) {
+    if (!jobName || !chatId || !jobHandlersMapping[jobName]) {
         logger.error(`Got incorrect request for job creation with jobName ${jobName} and chatId ${chatId}`);
         return;
     }
@@ -33,7 +34,7 @@ const addJob = (jobName, chatId) => {
         return;
     }
 
-    jobHandlers[jobName](chatId);
+    jobHandlersMapping[jobName](chatId);
     existingJobsList.push({
         name: jobName,
         chatId
