@@ -1,46 +1,48 @@
 
-jest.mock('../../src/common/logger', () => {
-    return {
-        warn: () => {}
-    };
-});
-jest.mock('../../src/controllers/exchangeRate', () => {
-    return {
-        getUSDRate: () => {}
-    };
-});
-jest.mock('../../src/controllers/jobs', () => {
-    return {
-        addJob: () => {}
-    };
-});
+jest.mock('../../src/common/logger', () => ({
+    warn: () => {}
+}));
+jest.mock('../../src/controllers/exchangeRate', () => ({
+    getUSDRate: () => {}
+}));
+jest.mock('../../src/controllers/jobs', () => ({
+    addJob: () => {}
+}));
 
-const messageHandler = require('../../src/controllers/messageHandler');
+const sut = require('../../src/controllers/messageHandler');
+
 const commands = require('../../src/consts/commands');
-
-// requires of exchangeRateGetter
 const logger = require('../../src/common/logger');
 const exchangeRate = require('../../src/controllers/exchangeRate');
 const jobs = require('../../src/controllers/jobs');
 
-describe('messageHandler', function() {
+describe('messageHandler controller', function() {
 
     let loggernWarnSpy;
     let getUSDRateSpy;
     let addJobSpy;
+
+    beforeAll(() => {
+        loggernWarnSpy = jest.spyOn(logger, 'warn');
+        getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+        addJobSpy = jest.spyOn(jobs, 'addJob');
+    });
+
+    afterAll(() => {
+        loggernWarnSpy.mockRestore();
+        getUSDRateSpy.mockRestore();
+        addJobSpy.mockRestore();
+    });
     
     describe('if message is undefined', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler();
+            sut();
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
         
         it('should write warn to log', function() {
@@ -58,16 +60,13 @@ describe('messageHandler', function() {
 
     describe('if message is empty', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({});
+            sut({});
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -85,19 +84,16 @@ describe('messageHandler', function() {
 
     describe('if message is without chat object', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: 'SOME_TEXT',
                 from: {}
             });
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -115,10 +111,7 @@ describe('messageHandler', function() {
 
     describe('if message is without chat id', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: 'SOME_TEXT',
                 from: {
                     is_bot: false
@@ -128,9 +121,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -148,10 +141,7 @@ describe('messageHandler', function() {
 
     describe('if message is without text', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 from: {
                     is_bot: false
                 },
@@ -162,9 +152,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -182,10 +172,7 @@ describe('messageHandler', function() {
 
     describe('if message is without from object', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: commands.DOLLAR_RATE,
                 chat: {
                     id: 'SOME_ID'
@@ -194,9 +181,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -214,10 +201,7 @@ describe('messageHandler', function() {
 
     describe('if message is from bot', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: commands.DOLLAR_RATE,
                 from: {
                     is_bot: true
@@ -229,9 +213,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -249,10 +233,7 @@ describe('messageHandler', function() {
 
     describe('if text is SOME_TEXT', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: 'SOME_TEXT',
                 from: {
                     is_bot: false
@@ -264,9 +245,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('shouldn\'t write warn to log', function() {
@@ -284,10 +265,7 @@ describe('messageHandler', function() {
 
     describe('if text is /dollar_rate', () => {
         beforeAll(() => {
-            loggernWarnSpy = jest.spyOn(logger, 'warn');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-            addJobSpy = jest.spyOn(jobs, 'addJob');
-            messageHandler({
+            sut({
                 text: commands.DOLLAR_RATE,
                 from: {
                     is_bot: false
@@ -299,9 +277,9 @@ describe('messageHandler', function() {
         });
 
         afterAll(() => {
-            loggernWarnSpy.mockRestore();
-            getUSDRateSpy.mockRestore();
-            addJobSpy.mockRestore();
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
         });
 
         it('shouldn\'t write warn to log', function() {

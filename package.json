@@ -24,13 +24,16 @@
     "jest": "^25.3.0"
   },
   "jest": {
-    "collectCoverageFrom": ["src/**/*.js"],
+    "verbose": true,
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
     "coverageThreshold": {
       "global": {
-        "branches": 18.9,
-        "functions": 3.8,
-        "lines": 9.9,
-        "statements": 9.7
+        "branches": 34.4,
+        "functions": 19.2,
+        "lines": 29,
+        "statements": 29.3
       }
     }
   }
