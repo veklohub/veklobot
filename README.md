@@ -2,6 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/veklohub/veklobot)](https://hub.docker.com/repository/docker/veklohub)
 [![Docker Builds](https://img.shields.io/docker/cloud/automated/veklohub/veklobot)](https://hub.docker.com/repository/docker/veklohub/veklobot/builds)
+[![Actions Builds](https://img.shields.io/github/workflow/status/veklohub/veklobot/Node.js%20CI/master)](https://github.com/veklohub/veklobot/actions)
 [![Code Coverage](https://img.shields.io/codecov/c/github/veklohub/veklobot)](https://codecov.io/gh/veklohub/veklobot/branch/master)
 
 To run project:
