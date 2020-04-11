@@ -1,5 +1,19 @@
-const expect = require('chai').expect;
-const sinon = require('sinon');
+
+jest.mock('../../src/common/logger', () => {
+    return {
+        warn: () => {}
+    };
+});
+jest.mock('../../src/controllers/exchangeRate', () => {
+    return {
+        getUSDRate: () => {}
+    };
+});
+jest.mock('../../src/controllers/jobs', () => {
+    return {
+        addJob: () => {}
+    };
+});
 
 const messageHandler = require('../../src/controllers/messageHandler');
 const commands = require('../../src/consts/commands');
@@ -11,105 +25,99 @@ const jobs = require('../../src/controllers/jobs');
 
 describe('messageHandler', function() {
 
-    let sandbox;
-    let loggernWarnMock;
-    let getUSDRateMock;
-    let startUSDRateJobMock;
-
-    before(() => {
-        sandbox = sinon.createSandbox();
-        loggernWarnMock = sandbox.stub(logger, 'warn');
-        getUSDRateMock = sandbox.stub(exchangeRate, 'getUSDRate');
-        startUSDRateJobMock = sandbox.stub(jobs, 'addJob');
-    });
-
-    after(() => {
-        sandbox.restore();
-    });
+    let loggernWarnSpy;
+    let getUSDRateSpy;
+    let addJobSpy;
     
     describe('if message is undefined', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler();
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
         
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is empty', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({});
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is without chat object', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: 'SOME_TEXT',
                 from: {}
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is without chat id', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: 'SOME_TEXT',
                 from: {
@@ -119,28 +127,30 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is without text', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 from: {
                     is_bot: false
@@ -151,28 +161,30 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is without from object', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: commands.DOLLAR_RATE,
                 chat: {
@@ -181,28 +193,30 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if message is from bot', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: commands.DOLLAR_RATE,
                 from: {
@@ -214,28 +228,30 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('should write warn to log', function() {
-            expect(loggernWarnMock.calledOnce).to.be.true;
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if text is SOME_TEXT', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: 'SOME_TEXT',
                 from: {
@@ -247,28 +263,30 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('shouldn\'t write warn to log', function() {
-            expect(loggernWarnMock.notCalled).to.be.true;
+            expect(loggernWarnSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t get USD rate', function() {
-            expect(getUSDRateMock.notCalled).to.be.true;
+            expect(getUSDRateSpy).not.toHaveBeenCalled();
         });
 
         it('shouldn\'t set up USD rate job', function() {
-            expect(startUSDRateJobMock.notCalled).to.be.true;
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 
     describe('if text is /dollar_rate', () => {
-        before(() => {
-            loggernWarnMock.returns();
-            getUSDRateMock.resolves();
-            startUSDRateJobMock.returns();
+        beforeAll(() => {
+            loggernWarnSpy = jest.spyOn(logger, 'warn');
+            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+            addJobSpy = jest.spyOn(jobs, 'addJob');
             messageHandler({
                 text: commands.DOLLAR_RATE,
                 from: {
@@ -280,20 +298,22 @@ describe('messageHandler', function() {
             });
         });
 
-        after(() => {
-            sandbox.reset();
+        afterAll(() => {
+            loggernWarnSpy.mockRestore();
+            getUSDRateSpy.mockRestore();
+            addJobSpy.mockRestore();
         });
 
         it('shouldn\'t write warn to log', function() {
-            expect(loggernWarnMock.notCalled).to.be.true;
+            expect(loggernWarnSpy).not.toHaveBeenCalled();
         });
 
         it('should get USD rate', function() {
-            expect(getUSDRateMock.calledOnce).to.be.true;
+            expect(getUSDRateSpy).toHaveBeenCalledTimes(1);
         });
 
         it('should set up USD rate job', function() {
-            expect(startUSDRateJobMock.calledOnce).to.be.true;
+            expect(addJobSpy).toHaveBeenCalledTimes(1);
         });
     });
 });
