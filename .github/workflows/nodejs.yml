@@ -24,12 +24,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-#     - run: npm ci --if-present
     - run: npm i
     - run: npm run coverage
     - name: Codecov
       uses: codecov/codecov-action@v1.0.6
- 
-
-#       env:
-#         CI: true
+      with:
+        fail_ci_if_error:: true
