@@ -15,7 +15,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha 'test/**/*.test.js'",
-    "coverage": "nyc --reporter=lcov npm run test"
+    "coverage": "nyc --reporter=lcov npm run test",
+    "coverage-html": "nyc --reporter=html npm run test"
   },
   "engines": {
     "node": ">= 12.16.1"
