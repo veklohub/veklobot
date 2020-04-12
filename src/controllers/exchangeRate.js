@@ -5,7 +5,7 @@ const exchangeRateGetter = require('../services/exchangeRateGetter');
 const callbackRetry = (fn, callback, retriesCount, ms) => {
     logger.info('Sending request to NBU API for exchange rate');
     ms = ms || 10;
-    retriesCount = retriesCount || 3;
+    retriesCount = typeof(retriesCount) === 'undefined' ? 3 : retriesCount;
     fn((error, result) => {
         if (error && retriesCount > 0) {
             logger.error(`NBU API responsed with the error: ${error}`);
@@ -20,6 +20,10 @@ const callbackRetry = (fn, callback, retriesCount, ms) => {
 };
 
 const getUSDRate = (chatId) => {
+    if (!chatId) {
+        return logger.error('Cannot handle without chatId');
+    }
+
     callbackRetry(exchangeRateGetter.getNBUExchangeRate,(error, exchangeRates) => {
         let text = '';
         if (error) {
@@ -37,8 +41,7 @@ const getUSDRate = (chatId) => {
             (error, result) => {
                 if (error || !result.ok) {
                     logger.error(`Message to telegram API wasn't delivered: ${error || JSON.stringify(result)}`);
-                }
-                else {
+                } else {
                     logger.info(`Message was sucsessfully sent to user: ${JSON.stringify(result)}`);
                 }
             }

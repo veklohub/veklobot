@@ -2,7 +2,6 @@
 jest.mock('cron', () => ({
     CronJob: jest.fn().mockImplementation((pattern, callback) => ({
         start: jest.fn(() => {
-            console.log(pattern);
             return callback();
         })
     }))
@@ -44,12 +43,9 @@ describe('jobs controller', function() {
 
         describe('if call without params', () => {
             beforeAll(() => {
-                sut.addJob();
-            });
-
-            afterAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
+                sut.addJob();
             });
 
             it('should write error to log', function() {
@@ -63,12 +59,9 @@ describe('jobs controller', function() {
 
         describe('if call without chatId', () => {
             beforeAll(() => {
-                sut.addJob('SOME_JOB');
-            });
-
-            afterAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
+                sut.addJob('SOME_JOB');
             });
 
             it('should write error to log', function() {
@@ -82,12 +75,9 @@ describe('jobs controller', function() {
 
         describe('if call with invalid job name', () => {
             beforeAll(() => {
-                sut.addJob('SOME_JOB', 'SOME_CHAT_ID');
-            });
-
-            afterAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
+                sut.addJob('SOME_JOB', 'SOME_CHAT_ID');
             });
 
             it('should write error to log', function() {
@@ -101,30 +91,28 @@ describe('jobs controller', function() {
 
         describe('if all params are valid', () => {
             beforeAll(() => {
-                sut.addJob(jobHandlersList.USD_RATE, 'SOME_CHAT_ID');
-            });
-
-            afterAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
+                sut.addJob(jobHandlersList.USD_RATE, 'SOME_CHAT_ID');
             });
 
             it('should add job', function() {
                 expect(cronJobSpy).toHaveBeenCalledTimes(1);
             });
+
+            it('should get USd rate', function() {
+                expect(getUSDRateSpy).toHaveBeenCalledTimes(1);
+            });
         });
 
         describe('if called second time with the same params', () => {
             beforeAll(() => {
+                loggernErrorSpy.mockClear();
+                cronJobSpy.mockClear();
                 sut.addJob(jobHandlersList.USD_RATE, 'SOME_CHAT_ID');
             });
 
-            afterAll(() => {
-                loggernErrorSpy.mockClear();
-                cronJobSpy.mockClear();
-            });
-
-            it('should add job', function() {
+            it('shouldn\'t add job', function() {
                 expect(cronJobSpy).not.toHaveBeenCalled();
             });
 

@@ -36,13 +36,10 @@ describe('messageHandler controller', function() {
     
     describe('if message is undefined', () => {
         beforeAll(() => {
-            sut();
-        });
-
-        afterAll(() => {
             loggernWarnSpy.mockClear();
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
+            sut();
         });
         
         it('should write warn to log', function() {
@@ -60,13 +57,10 @@ describe('messageHandler controller', function() {
 
     describe('if message is empty', () => {
         beforeAll(() => {
-            sut({});
-        });
-
-        afterAll(() => {
             loggernWarnSpy.mockClear();
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
+            sut({});
         });
 
         it('should write warn to log', function() {
@@ -84,16 +78,13 @@ describe('messageHandler controller', function() {
 
     describe('if message is without chat object', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: 'SOME_TEXT',
                 from: {}
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -111,6 +102,9 @@ describe('messageHandler controller', function() {
 
     describe('if message is without chat id', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: 'SOME_TEXT',
                 from: {
@@ -118,12 +112,6 @@ describe('messageHandler controller', function() {
                 },
                 chat: {}
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -141,6 +129,9 @@ describe('messageHandler controller', function() {
 
     describe('if message is without text', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 from: {
                     is_bot: false
@@ -149,12 +140,6 @@ describe('messageHandler controller', function() {
                     id: 'SOME_ID'
                 }
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -172,18 +157,15 @@ describe('messageHandler controller', function() {
 
     describe('if message is without from object', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: commands.DOLLAR_RATE,
                 chat: {
                     id: 'SOME_ID'
                 }
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -201,6 +183,9 @@ describe('messageHandler controller', function() {
 
     describe('if message is from bot', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: commands.DOLLAR_RATE,
                 from: {
@@ -210,12 +195,6 @@ describe('messageHandler controller', function() {
                     id: 'SOME_ID'
                 }
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('should write warn to log', function() {
@@ -233,6 +212,9 @@ describe('messageHandler controller', function() {
 
     describe('if text is SOME_TEXT', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: 'SOME_TEXT',
                 from: {
@@ -242,12 +224,6 @@ describe('messageHandler controller', function() {
                     id: 'SOME_ID'
                 }
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('shouldn\'t write warn to log', function() {
@@ -265,6 +241,9 @@ describe('messageHandler controller', function() {
 
     describe('if text is /dollar_rate', () => {
         beforeAll(() => {
+            loggernWarnSpy.mockClear();
+            getUSDRateSpy.mockClear();
+            addJobSpy.mockClear();
             sut({
                 text: commands.DOLLAR_RATE,
                 from: {
@@ -274,12 +253,6 @@ describe('messageHandler controller', function() {
                     id: 'SOME_ID'
                 }
             });
-        });
-
-        afterAll(() => {
-            loggernWarnSpy.mockClear();
-            getUSDRateSpy.mockClear();
-            addJobSpy.mockClear();
         });
 
         it('shouldn\'t write warn to log', function() {
