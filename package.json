@@ -14,16 +14,27 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha 'test/**/*.test.js'",
-    "coverage": "nyc --reporter=lcov npm run test"
+    "test": "jest",
+    "coverage": "npm run test -- --coverage"
   },
   "engines": {
     "node": ">= 12.16.1"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.1.1",
-    "nyc": "^15.0.1",
-    "sinon": "^9.0.1"
+    "jest": "^25.3.0"
+  },
+  "jest": {
+    "verbose": true,
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 68.9,
+        "branches": 71.6,
+        "functions": 73,
+        "lines": 68.3
+      }
+    }
   }
 }

@@ -11,7 +11,7 @@ const setWebhook = (serverURLForWebhook, pathToCert, callback) => {
         formData: {
             url: serverURLForWebhook,
             certificate: fs.createReadStream(pathToCert)
-        },
+        }
     }, function(error, response, body) {
         callback(error, JSON.parse(body));
     });
@@ -24,7 +24,7 @@ const sendMessage = (chatId, message, callback) => {
         json: {
             chat_id: chatId,
             text: message
-        },
+        }
     }, function(error, response, body) {
         callback(error, body);
     });
