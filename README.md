@@ -37,3 +37,6 @@ Create ```config``` and ```certs``` dirs, where you've placed mentioned above fi
 
 Run docker
 ```docker run -p host_port:8443 -ti -v `pwd`/certs:/opt/app/certs -v `pwd`/config:/opt/app/config veklohub/veklobot:latest```
+
+## Useful links
+[Telegram bot API](https://core.telegram.org/bots)
