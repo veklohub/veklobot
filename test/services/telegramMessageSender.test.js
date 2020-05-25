@@ -5,9 +5,7 @@ jest.mock('fs', () => ({
     createReadStream: jest.fn(() => 'anything')
 }));
 jest.mock('request', () => ({
-    post: jest.fn((config, callback) => {
-        return callback(undefined, undefined, JSON.stringify(MOCKED_RESPONSE));
-    })
+    post: jest.fn()
 }));
 jest.mock('config', () => ({
     get: jest.fn((path) => {
@@ -45,29 +43,53 @@ describe('telegramMessageSender service', function() {
         const PATH_TO_CERT = 'path/to/cert/';
         const CALLBACK_MOCK = jest.fn();
 
-        beforeAll(() => {
-            requestPostSpy.mockClear();
-            createReadStreamSpy.mockClear();
-            sut.setWebhook(SERVER_URL, PATH_TO_CERT, CALLBACK_MOCK);
+        describe('positive case', () => {
+
+            beforeAll(() => {
+                requestPostSpy.mockClear();
+                createReadStreamSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, JSON.stringify(MOCKED_RESPONSE));
+                });
+                sut.setWebhook(SERVER_URL, PATH_TO_CERT, CALLBACK_MOCK);
+            });
+
+            it('should send post request with correct params', function() {
+                expect(requestPostSpy).toHaveBeenCalledWith({
+                    url: 'some.api/SOME_TOKEN/setWebhook',
+                    strictSSL: false,
+                    formData: {
+                        url: SERVER_URL,
+                        certificate: expect.anything()
+                    }
+                }, expect.any(Function));
+            });
+
+            it('should read certificate from correct path', function() {
+                expect(createReadStreamSpy).toHaveBeenCalledWith(PATH_TO_CERT);
+            });
+
+            it('should call callback with expected arguments', function() {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, MOCKED_RESPONSE);
+            });
         });
 
-        it('should send post request with correct params', function() {
-            expect(requestPostSpy).toHaveBeenCalledWith({
-                url: 'some.api/SOME_TOKEN/setWebhook',
-                strictSSL: false,
-                formData: {
-                    url: SERVER_URL,
-                    certificate: expect.anything()
-                }
-            }, expect.any(Function));
-        });
+        describe('negative case', () => {
+            const MOCKED_ERROR = new Error('Some error');
+            const MOCKED_RESPONSE = 'Some error';
 
-        it('should read certificate from correct path', function() {
-            expect(createReadStreamSpy).toHaveBeenCalledWith(PATH_TO_CERT);
-        });
+            beforeAll(() => {
+                requestPostSpy.mockClear();
+                createReadStreamSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(MOCKED_ERROR, undefined, MOCKED_RESPONSE);
+                });
+                sut.setWebhook(SERVER_URL, PATH_TO_CERT, CALLBACK_MOCK);
+            });
 
-        it('should call callback with expected arguments', function() {
-            expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, MOCKED_RESPONSE);
+            it('should call callback with expected arguments', function() {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(MOCKED_ERROR, MOCKED_RESPONSE);
+            });
         });
     });
 
@@ -78,6 +100,9 @@ describe('telegramMessageSender service', function() {
 
         beforeAll(() => {
             requestPostSpy.mockClear();
+            request.post.mockImplementation((config, callback) => {
+                return callback(undefined, undefined, JSON.stringify(MOCKED_RESPONSE));
+            });
             sut.sendMessage(CHAT_ID, MESSAGE, CALLBACK_MOCK);
         });
 

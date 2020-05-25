@@ -1,13 +1,9 @@
 const winston = require('winston');
-const config = require('config');
 
 const logger = winston.createLogger({
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.prettyPrint()
-    ),
+    format: winston.format.simple(),
     transports: [
-        new winston.transports.Console({format: winston.format.simple()})
+        new winston.transports.Console({})
     ]
 });
 
