@@ -40,7 +40,9 @@ const getWebhookInfo = (callback) => {
         } finally {
             if (parsedBody && parsedBody.result) {
                 if (Number.isInteger(parsedBody.result.last_error_date)) {
-                    parsedBody.result.last_error_date = moment.unix(parsedBody.result.last_error_date).format();
+                    parsedBody.result.last_error_date = moment
+                        .unix(parsedBody.result.last_error_date)
+                        .format('DD-MM-YYYY, HH:mm:ss');
                 }
 
                 if (parsedBody.result.url) {

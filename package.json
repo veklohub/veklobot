@@ -28,6 +28,7 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
+    "setupFilesAfterEnv": ["<rootDir>/test/config/momentMock.js"],
     "coverageThreshold": {
       "global": {
         "statements": 71.1,

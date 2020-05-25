@@ -122,7 +122,7 @@ describe('telegramMessageSender service', function() {
             it('should call callback with expected arguments', function () {
                 expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, {
                     result: {
-                        last_error_date: '2020-05-25T19:56:48+03:00',
+                        last_error_date: '25-05-2020, 16:56:48',
                         url: 'https://your.domain:443/YOUR_TELEGRAM_BOT_TOKEN'
                     }
                 });
