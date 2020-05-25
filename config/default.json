@@ -4,7 +4,7 @@
     "port": 8443
   },
   "certificate": {
-    "pathToCert": "./certs/server.cert",
+    "pathToCert": "./certs/server.pem",
     "pathToKey": "./certs/server.key"
   },
   "telegram": {

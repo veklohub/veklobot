@@ -4,15 +4,26 @@ const https = require('https');
 
 const logger = require('../common/logger');
 const messageHandler = require('../controllers/messageHandler');
+const healthCheck = require('../controllers/healthcheck');
 
 const app = express();
 
 const initWebserver = (webServerConfig) => {
     app.use(express.json());
 
+    app.all('*', (request, response, next) => {
+        logger.info(`Get request to ${request.path}`);
+        next();
+    });
+
     app.all(`/`, (request, response) => {
-        logger.info('Get request to /');
         response.send('Hello world!');
+    });
+
+    app.all(`/health`, (request, response) => {
+        healthCheck.healthcheck((error, status) => {
+            response.send(status);
+        });
     });
 
     const URL_FOR_TELEGRAM_WEBHOOK = webServerConfig.urlForTelegramWebhook;

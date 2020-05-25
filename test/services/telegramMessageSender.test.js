@@ -1,5 +1,5 @@
 
-const MOCKED_RESPONSE = {result: 'ok'};
+let mockedResponse = {result: 'ok'};
 
 jest.mock('fs', () => ({
     createReadStream: jest.fn(() => 'anything')
@@ -49,7 +49,7 @@ describe('telegramMessageSender service', function() {
                 requestPostSpy.mockClear();
                 createReadStreamSpy.mockClear();
                 request.post.mockImplementation((config, callback) => {
-                    return callback(undefined, undefined, JSON.stringify(MOCKED_RESPONSE));
+                    return callback(undefined, undefined, JSON.stringify(mockedResponse));
                 });
                 sut.setWebhook(SERVER_URL, PATH_TO_CERT, CALLBACK_MOCK);
             });
@@ -70,25 +70,96 @@ describe('telegramMessageSender service', function() {
             });
 
             it('should call callback with expected arguments', function() {
-                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, MOCKED_RESPONSE);
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, mockedResponse);
             });
         });
 
         describe('negative case', () => {
             const MOCKED_ERROR = new Error('Some error');
-            const MOCKED_RESPONSE = 'Some error';
 
             beforeAll(() => {
+                mockedResponse = 'Some error';
                 requestPostSpy.mockClear();
                 createReadStreamSpy.mockClear();
                 request.post.mockImplementation((config, callback) => {
-                    return callback(MOCKED_ERROR, undefined, MOCKED_RESPONSE);
+                    return callback(MOCKED_ERROR, undefined, mockedResponse);
                 });
                 sut.setWebhook(SERVER_URL, PATH_TO_CERT, CALLBACK_MOCK);
             });
 
             it('should call callback with expected arguments', function() {
-                expect(CALLBACK_MOCK).toHaveBeenCalledWith(MOCKED_ERROR, MOCKED_RESPONSE);
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(MOCKED_ERROR, mockedResponse);
+            });
+        });
+    });
+
+    describe('getWebhookInfo', () => {
+        const CALLBACK_MOCK = jest.fn();
+
+        describe('positive case', () => {
+            beforeAll(() => {
+                mockedResponse = {
+                    result: {
+                        last_error_date: 1590425808,
+                        url: 'https://your.domain:443/1234567890:ABCDefghIGKLmnopQRSTuvwxYZ123456789'
+                    }
+                };
+                requestPostSpy.mockClear();
+                CALLBACK_MOCK.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, JSON.stringify(mockedResponse));
+                });
+                sut.getWebhookInfo(CALLBACK_MOCK);
+            });
+
+            it('should send post request with correct params', function () {
+                expect(requestPostSpy).toHaveBeenCalledWith({
+                    url: 'some.api/SOME_TOKEN/getWebhookInfo',
+                    strictSSL: false
+                }, expect.any(Function));
+            });
+
+            it('should call callback with expected arguments', function () {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, {
+                    result: {
+                        last_error_date: '2020-05-25T19:56:48+03:00',
+                        url: 'https://your.domain:443/YOUR_TELEGRAM_BOT_TOKEN'
+                    }
+                });
+            });
+        });
+
+        describe('webhook response in string', () => {
+            beforeAll(() => {
+                mockedResponse = 'Some error';
+                requestPostSpy.mockClear();
+                CALLBACK_MOCK.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, mockedResponse);
+                });
+                sut.getWebhookInfo(CALLBACK_MOCK);
+            });
+
+            it('should call callback with expected arguments', function () {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, mockedResponse);
+            });
+        });
+
+        describe('no last_error_date param in webhook response', () => {
+            beforeAll(() => {
+                mockedResponse = {
+                    result: { last_error_date: undefined }
+                };
+                requestPostSpy.mockClear();
+                CALLBACK_MOCK.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, mockedResponse);
+                });
+                sut.getWebhookInfo(CALLBACK_MOCK);
+            });
+
+            it('should call callback with expected arguments', function () {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, mockedResponse);
             });
         });
     });
@@ -101,7 +172,7 @@ describe('telegramMessageSender service', function() {
         beforeAll(() => {
             requestPostSpy.mockClear();
             request.post.mockImplementation((config, callback) => {
-                return callback(undefined, undefined, JSON.stringify(MOCKED_RESPONSE));
+                return callback(undefined, undefined, JSON.stringify(mockedResponse));
             });
             sut.sendMessage(CHAT_ID, MESSAGE, CALLBACK_MOCK);
         });
@@ -118,7 +189,7 @@ describe('telegramMessageSender service', function() {
         });
 
         it('should call callback with expected arguments', function() {
-            expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, JSON.stringify(MOCKED_RESPONSE));
+            expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, JSON.stringify(mockedResponse));
         });
     });
 });

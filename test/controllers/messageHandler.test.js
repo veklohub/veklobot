@@ -226,8 +226,8 @@ describe('messageHandler controller', function() {
             });
         });
 
-        it('shouldn\'t write warn to log', function() {
-            expect(loggernWarnSpy).not.toHaveBeenCalled();
+        it('shouldn write warn to log', function() {
+            expect(loggernWarnSpy).toHaveBeenCalledTimes(1);
         });
 
         it('shouldn\'t get USD rate', function() {

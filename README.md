@@ -21,7 +21,7 @@ To run project:
     `$NODE_CONFIG_DIR` can be a full path from your root directory, or a relative path from the process if the value begins with ./ or ../. Multiple directories can be configured as well, splitting it using : (on Linux/Mac) or ; (on Windows), or for cross-platform development with the path delimiter. This results in 
     
     `process.env["NODE_CONFIG_DIR"] = __dirname + "/configDir/" + require('path').delimiter + __dirname + "/configDir2/";`
-3. Generate SSL certificate. Example of command for generation of self-signed certificate `openssl req -nodes -new -x509 -keyout server.key -out server.cert`. During generation it's important to set up `Common Name (e.g. server FQDN or YOUR name)` (it could be your domain name) and `Email Address`.
+3. Generate SSL certificate. The article about how to generate certificates you can find below in the section [Useful links](#useful-links)
 4. Configure path for both, the certificate file and the private key of the certificate. 
 5. Generate token for Telegram bot and add it to configuration file
 6. Add additional configuration parameters if you want to rewrite some default ones
@@ -38,6 +38,13 @@ Create ```config``` and ```certs``` dirs, where you've placed mentioned above fi
 Run docker
 ```docker run -p host_port:8443 -ti -v `pwd`/certs:/opt/app/certs -v `pwd`/config:/opt/app/config veklohub/veklobot:latest```
 
+## Available commands
+**/dollar_rate** - returns NBU rate of USD to UAH
+
+## Available endpoints
+**/health** - returns healthcheck of service
+
 ## Useful links
 [Telegram bot API](https://core.telegram.org/bots)
+
 [How to generate self-signed cert](https://core.telegram.org/bots/self-signed)

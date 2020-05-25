@@ -12,6 +12,8 @@ const messageHandler = (message) => {
         exchangeRate.getUSDRate(message.chat.id);
 
         jobs.addJob('USDRate', message.chat.id);
+    } else {
+        logger.warn(`Unknown messahe: ${JSON.stringify(message)}`);
     }
 };
 
