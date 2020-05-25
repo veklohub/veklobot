@@ -13,7 +13,14 @@ const setWebhook = (serverURLForWebhook, pathToCert, callback) => {
             certificate: fs.createReadStream(pathToCert)
         }
     }, function(error, response, body) {
-        callback(error, JSON.parse(body));
+        let parsedBody = body;
+        try {
+            parsedBody = JSON.parse(body);
+        } catch(error) {
+            parsedBody = body;
+        } finally {
+            callback(error, parsedBody);
+        }
     });
 };
 
