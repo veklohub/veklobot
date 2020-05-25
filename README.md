@@ -40,3 +40,4 @@ Run docker
 
 ## Useful links
 [Telegram bot API](https://core.telegram.org/bots)
+[How to generate self-signed cert](https://core.telegram.org/bots/self-signed)
