@@ -7,14 +7,8 @@ const logger = winston.createLogger({
         winston.format.prettyPrint()
     ),
     transports: [
-        new winston.transports.File({ filename: './logs/combined.log' })
+        new winston.transports.Console({format: winston.format.simple()})
     ]
 });
-
-if (config.util.getEnv('NODE_ENV') !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple()
-    }));
-}
 
 module.exports = logger;
