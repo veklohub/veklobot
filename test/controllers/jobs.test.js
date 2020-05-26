@@ -22,25 +22,26 @@ const logger = require('../../src/common/logger');
 const jobHandlersList = require('../../src/consts/jobHandlers');
 const exchangeRate = require('../../src/controllers/exchangeRate');
 
+const CHAT_ID = 'SOME_CHAT_ID';
+
 describe('jobs controller', function() {
 
+    let loggernErrorSpy;
+    let cronJobSpy;
+    let getUSDRateSpy;
+
+    beforeAll(() => {
+        loggernErrorSpy = jest.spyOn(logger, 'error');
+        cronJobSpy = jest.spyOn(cron, 'CronJob');
+        getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
+    });
+
+    afterAll(() => {
+        loggernErrorSpy.mockRestore();
+        cronJobSpy.mockRestore();
+    });
+
     describe('addJob method', () => {
-
-        let loggernErrorSpy;
-        let cronJobSpy;
-        let getUSDRateSpy;
-
-        beforeAll(() => {
-            loggernErrorSpy = jest.spyOn(logger, 'error');
-            cronJobSpy = jest.spyOn(cron, 'CronJob');
-            getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
-        });
-
-        afterAll(() => {
-            loggernErrorSpy.mockRestore();
-            cronJobSpy.mockRestore();
-        });
-
         describe('if call without params', () => {
             beforeAll(() => {
                 loggernErrorSpy.mockClear();
@@ -77,7 +78,7 @@ describe('jobs controller', function() {
             beforeAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
-                sut.addJob('SOME_JOB', 'SOME_CHAT_ID');
+                sut.addJob('SOME_JOB', CHAT_ID);
             });
 
             it('should write error to log', function() {
@@ -93,7 +94,7 @@ describe('jobs controller', function() {
             beforeAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
-                sut.addJob(jobHandlersList.USD_RATE, 'SOME_CHAT_ID');
+                sut.addJob(jobHandlersList.USD_RATE, CHAT_ID);
             });
 
             it('should add job', function() {
@@ -109,7 +110,7 @@ describe('jobs controller', function() {
             beforeAll(() => {
                 loggernErrorSpy.mockClear();
                 cronJobSpy.mockClear();
-                sut.addJob(jobHandlersList.USD_RATE, 'SOME_CHAT_ID');
+                sut.addJob(jobHandlersList.USD_RATE, CHAT_ID);
             });
 
             it('shouldn\'t add job', function() {
@@ -119,6 +120,17 @@ describe('jobs controller', function() {
             it('should get USd rate', function() {
                 expect(getUSDRateSpy).toHaveBeenCalledTimes(1);
             });
+        });
+    });
+
+    describe('isJobExists method', () => {
+        it('if job doesn\'t exist - should return false', () => {
+            expect(sut.isJobExists(jobHandlersList.USD_RATE, 'NEW_CHAT_ID')).toBeFalsy();
+        });
+
+        it('if job exists - should return true', () => {
+            sut.addJob(jobHandlersList.USD_RATE, 'EXISTING_CHAT_ID');
+            expect(sut.isJobExists(jobHandlersList.USD_RATE, 'EXISTING_CHAT_ID')).toBeTruthy();
         });
     });
 });

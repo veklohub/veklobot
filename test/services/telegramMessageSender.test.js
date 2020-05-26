@@ -307,4 +307,59 @@ describe('telegramMessageSender service', function() {
             });
         });
     });
+
+    describe('answerCallbackQuery', () => {
+        describe('positive case', () => {
+            beforeAll(() => {
+                requestPostSpy.mockClear();
+                loggernInfoSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, { ok: true });
+                });
+                sut.answerCallbackQuery({ callbackQueryId: 'id' });
+            });
+
+            it('should send post request with correct params', function () {
+                expect(requestPostSpy).toHaveBeenCalledWith({
+                    url: 'some.api/SOME_TOKEN/answerCallbackQuery',
+                    strictSSL: false,
+                    json: {
+                        callback_query_id: 'id'
+                    }
+                }, expect.any(Function));
+            });
+
+            it('should write info to log', function() {
+                expect(loggernInfoSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('telegram responses with error', () => {
+            beforeAll(() => {
+                loggernErrorSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(new Error('Some error'), undefined, {});
+                });
+                sut.answerCallbackQuery({ callbackQueryId: 'id' });
+            });
+
+            it('should write error to log', function() {
+                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('telegram returns bad response', () => {
+            beforeAll(() => {
+                loggernErrorSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, { ok: false });
+                });
+                sut.answerCallbackQuery({ callbackQueryId: 'id' });
+            });
+
+            it('should write error to log', function() {
+                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+    });
 });

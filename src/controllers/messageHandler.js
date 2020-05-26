@@ -4,7 +4,16 @@ const jobs = require('./jobs');
 const commands = require('../consts/commands');
 const telegramMessageSender = require('../services/telegramMessageSender');
 
-const messageHandler = (message) => {
+const messageHandler = (response) => {
+    let message;
+
+    if (response.callback_query) {
+        telegramMessageSender.answerCallbackQuery({ callbackQueryId: response.callback_query.id });
+        message = response.callback_query;
+    } else {
+        message = response.message;
+    }
+
     if (
         !message ||
         (!message.text && !message.data) ||
@@ -27,8 +36,14 @@ const messageHandler = (message) => {
                 }]]
             });
         } else if (messageText.includes(commands.DOLLAR_RATE.command)) {
-            exchangeRate.getUSDRate(messageChatId, true);
-            jobs.addJob('USDRate', messageChatId);
+            const jobName = 'USDRate';
+            const isFirstTimeRequested = !jobs.isJobExists(jobName, messageChatId);
+
+            exchangeRate.getUSDRate(messageChatId, isFirstTimeRequested);
+
+            if (isFirstTimeRequested) {
+                jobs.addJob(jobName, messageChatId);
+            }
         } else {
             logger.warn(`Unknown message: ${JSON.stringify(message)}`);
         }

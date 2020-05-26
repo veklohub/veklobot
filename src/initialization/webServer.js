@@ -30,7 +30,7 @@ const initWebserver = (webServerConfig) => {
     const URL_FOR_TELEGRAM_WEBHOOK = webServerConfig.urlForTelegramWebhook;
     app.post(URL_FOR_TELEGRAM_WEBHOOK, (request, response) => {
         logger.info(`Get webhook request from Telegram: ${JSON.stringify(request.body)}`);
-        messageHandler(request.body.message || request.body.callback_query);
+        messageHandler(request.body);
         response.end();
     }).on('error', (error) => {
         logger.error(error);

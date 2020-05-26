@@ -41,6 +41,11 @@ const addJob = (jobName, chatId) => {
     });
 };
 
+const isJobExists = (jobName, chatId) => {
+    return !!existingJobsList.find(job => job.name === jobName && job.chatId === chatId);
+};
+
 module.exports = {
-    addJob
+    addJob,
+    isJobExists
 };

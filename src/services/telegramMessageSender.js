@@ -80,8 +80,25 @@ const sendMessage = (options, callback) => {
     });
 };
 
+const answerCallbackQuery = (options) => {
+    request.post({
+        url: `${TELEGRAM_API_URL}answerCallbackQuery`,
+        strictSSL: false,
+        json: {
+            callback_query_id: options.callbackQueryId
+        }
+    }, function(error, response, body) {
+        if (error || !body.ok) {
+            logger.error(`Message answerCallbackQuery to telegram API wasn't delivered: ${error || JSON.stringify(body)}`);
+        } else {
+            logger.info(`Message answerCallbackQuery was sucsessfully sent`);
+        }
+    });
+};
+
 module.exports = {
     setWebhook,
     getWebhookInfo,
-    sendMessage
+    sendMessage,
+    answerCallbackQuery
 };

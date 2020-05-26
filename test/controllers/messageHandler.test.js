@@ -6,10 +6,12 @@ jest.mock('../../src/controllers/exchangeRate', () => ({
     getUSDRate: () => {}
 }));
 jest.mock('../../src/controllers/jobs', () => ({
-    addJob: () => {}
+    addJob: () => {},
+    isJobExists: jest.fn()
 }));
 jest.mock('../../src/services/telegramMessageSender', () => ({
-    sendMessage: () => {}
+    sendMessage: () => {},
+    answerCallbackQuery: () => {}
 }));
 
 const sut = require('../../src/controllers/messageHandler');
@@ -24,6 +26,7 @@ describe('messageHandler controller', function() {
 
     let loggernWarnSpy;
     let sendMessageSpy;
+    let answerCallbackQuerySpy;
     let getUSDRateSpy;
     let addJobSpy;
 
@@ -32,6 +35,7 @@ describe('messageHandler controller', function() {
     beforeAll(() => {
         loggernWarnSpy = jest.spyOn(logger, 'warn');
         sendMessageSpy = jest.spyOn(telegramMessageSender, 'sendMessage');
+        answerCallbackQuerySpy = jest.spyOn(telegramMessageSender, 'answerCallbackQuery');
         getUSDRateSpy = jest.spyOn(exchangeRate, 'getUSDRate');
         addJobSpy = jest.spyOn(jobs, 'addJob');
     });
@@ -39,6 +43,7 @@ describe('messageHandler controller', function() {
     afterAll(() => {
         loggernWarnSpy.mockRestore();
         sendMessageSpy.mockRestore();
+        answerCallbackQuerySpy.mockRestore();
         getUSDRateSpy.mockRestore();
         addJobSpy.mockRestore();
     });
@@ -48,7 +53,7 @@ describe('messageHandler controller', function() {
             loggernWarnSpy.mockClear();
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
-            sut();
+            sut({});
         });
         
         it('should write warn to log', function() {
@@ -69,7 +74,7 @@ describe('messageHandler controller', function() {
             loggernWarnSpy.mockClear();
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
-            sut({});
+            sut({ message: {} });
         });
 
         it('should write warn to log', function() {
@@ -91,11 +96,13 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                text: 'SOME_TEXT',
-                from: {
-                    is_bot: false
-                },
-                chat: {}
+                message: {
+                    text: 'SOME_TEXT',
+                    from: {
+                        is_bot: false
+                    },
+                    chat: {}
+                }
             });
         });
 
@@ -118,11 +125,13 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                from: {
-                    is_bot: false
-                },
-                chat: {
-                    id: CHAT_ID
+                message: {
+                    from: {
+                        is_bot: false
+                    },
+                    chat: {
+                        id: CHAT_ID
+                    }
                 }
             });
         });
@@ -146,9 +155,11 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                text: commands.DOLLAR_RATE,
-                chat: {
-                    id: CHAT_ID
+                message: {
+                    text: commands.DOLLAR_RATE,
+                    chat: {
+                        id: CHAT_ID
+                    }
                 }
             });
         });
@@ -172,12 +183,14 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                text: commands.DOLLAR_RATE,
-                from: {
-                    is_bot: true
-                },
-                chat: {
-                    id: CHAT_ID
+                message: {
+                    text: commands.DOLLAR_RATE,
+                    from: {
+                        is_bot: true
+                    },
+                    chat: {
+                        id: CHAT_ID
+                    }
                 }
             });
         });
@@ -201,12 +214,14 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                text: 'SOME_TEXT',
-                from: {
-                    is_bot: false
-                },
-                chat: {
-                    id: CHAT_ID
+                message: {
+                    text: 'SOME_TEXT',
+                    from: {
+                        is_bot: false
+                    },
+                    chat: {
+                        id: CHAT_ID
+                    }
                 }
             });
         });
@@ -228,19 +243,26 @@ describe('messageHandler controller', function() {
         beforeAll(() => {
             loggernWarnSpy.mockClear();
             sendMessageSpy.mockClear();
+            answerCallbackQuerySpy.mockClear();
             sut({
-                data: commands.START.command,
-                message: {
-                    chat: {
-                        id: CHAT_ID
-                    }
-                },
-                from: {}
+                callback_query: {
+                    data: commands.START.command,
+                    message: {
+                        chat: {
+                            id: CHAT_ID
+                        }
+                    },
+                    from: {}
+                }
             });
         });
 
         it('shouldn\'t write warn to log', function() {
             expect(loggernWarnSpy).not.toHaveBeenCalled();
+        });
+
+        it('should answer to callback query', function() {
+            expect(answerCallbackQuerySpy).toHaveBeenCalledTimes(1);
         });
 
         it('should send message', function() {
@@ -261,12 +283,14 @@ describe('messageHandler controller', function() {
             getUSDRateSpy.mockClear();
             addJobSpy.mockClear();
             sut({
-                text: commands.DOLLAR_RATE.command,
-                from: {
-                    is_bot: false
-                },
-                chat: {
-                    id: CHAT_ID
+                message: {
+                    text: commands.DOLLAR_RATE.command,
+                    from: {
+                        is_bot: false
+                    },
+                    chat: {
+                        id: CHAT_ID
+                    }
                 }
             });
         });
@@ -281,6 +305,28 @@ describe('messageHandler controller', function() {
 
         it('should set up USD rate job', function() {
             expect(addJobSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('if /dollar_rate job already exists', () => {
+        beforeAll(() => {
+            addJobSpy.mockClear();
+            jobs.isJobExists.mockImplementation(() => true);
+            sut({
+                message: {
+                    text: commands.DOLLAR_RATE.command,
+                    from: {
+                        is_bot: false
+                    },
+                    chat: {
+                        id: CHAT_ID
+                    }
+                }
+            });
+        });
+
+        it('should set up USD rate job only once', function() {
+            expect(addJobSpy).not.toHaveBeenCalled();
         });
     });
 });
