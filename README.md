@@ -39,6 +39,7 @@ Run docker
 ```docker run -p host_port:8443 -ti -v `pwd`/certs:/opt/app/certs -v `pwd`/config:/opt/app/config veklohub/veklobot:latest```
 
 ## Available commands
+**/start** - returns greetings and available commands
 **/dollar_rate** - returns NBU rate of USD to UAH
 
 ## Available endpoints

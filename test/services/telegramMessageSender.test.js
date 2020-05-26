@@ -1,6 +1,3 @@
-
-let mockedResponse = {result: 'ok'};
-
 jest.mock('fs', () => ({
     createReadStream: jest.fn(() => 'anything')
 }));
@@ -17,23 +14,37 @@ jest.mock('config', () => ({
         }
     })
 }));
+jest.mock('../../src/common/logger', () => ({
+    info: () => {},
+    error: () => {}
+}));
 
 const sut = require('../../src/services/telegramMessageSender');
 
 const request = require('request');
 const fs = require('fs');
 
+const logger = require('../../src/common/logger');
+
 describe('telegramMessageSender service', function() {
 
     let requestPostSpy;
     let createReadStreamSpy;
+    let loggernErrorSpy;
+    let loggernInfoSpy;
+
+    let mockedResponse;
 
     beforeAll(() => {
+        loggernErrorSpy = jest.spyOn(logger, 'error');
+        loggernInfoSpy = jest.spyOn(logger, 'info');
         requestPostSpy = jest.spyOn(request, 'post');
         createReadStreamSpy = jest.spyOn(fs, 'createReadStream');
     });
 
     afterAll(() => {
+        loggernErrorSpy.mockRestore();
+        loggernInfoSpy.mockRestore();
         requestPostSpy.mockRestore();
         createReadStreamSpy.mockRestore();
     });
@@ -46,6 +57,10 @@ describe('telegramMessageSender service', function() {
         describe('positive case', () => {
 
             beforeAll(() => {
+                mockedResponse = {
+                    ok: true
+                };
+
                 requestPostSpy.mockClear();
                 createReadStreamSpy.mockClear();
                 request.post.mockImplementation((config, callback) => {
@@ -167,29 +182,129 @@ describe('telegramMessageSender service', function() {
     describe('sendMessage', () => {
         const CHAT_ID = 'SOME_CHAT_ID';
         const MESSAGE = 'Some message...';
+        const INLINE_KEYBOARD = [];
         const CALLBACK_MOCK = jest.fn();
 
         beforeAll(() => {
-            requestPostSpy.mockClear();
+            mockedResponse = {
+                ok: true
+            };
+
             request.post.mockImplementation((config, callback) => {
-                return callback(undefined, undefined, JSON.stringify(mockedResponse));
+                return callback(undefined, undefined, mockedResponse);
             });
-            sut.sendMessage(CHAT_ID, MESSAGE, CALLBACK_MOCK);
         });
 
-        it('should send post request with correct params', function() {
-            expect(requestPostSpy).toHaveBeenCalledWith({
-                url: 'some.api/SOME_TOKEN/sendMessage',
-                strictSSL: false,
-                json: {
-                    chat_id: CHAT_ID,
-                    text: MESSAGE
-                }
-            }, expect.any(Function));
+        describe('positive case', () => {
+            beforeAll(() => {
+                requestPostSpy.mockClear();
+                CALLBACK_MOCK.mockClear();
+                loggernInfoSpy.mockClear();
+                sut.sendMessage({
+                    chatId: CHAT_ID,
+                    message: MESSAGE,
+                    inlineKeyboard: INLINE_KEYBOARD
+                }, CALLBACK_MOCK);
+            });
+
+            it('should send post request with correct params', function() {
+                expect(requestPostSpy).toHaveBeenCalledWith({
+                    url: 'some.api/SOME_TOKEN/sendMessage',
+                    strictSSL: false,
+                    json: {
+                        chat_id: CHAT_ID,
+                        text: MESSAGE,
+                        reply_markup: {
+                            inline_keyboard: INLINE_KEYBOARD
+                        }
+                    }
+                }, expect.any(Function));
+            });
+
+            it('should call callback with expected arguments', function() {
+                expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, mockedResponse);
+            });
+
+            it('should write info to log', function() {
+                expect(loggernInfoSpy).toHaveBeenCalledTimes(1);
+            });
         });
 
-        it('should call callback with expected arguments', function() {
-            expect(CALLBACK_MOCK).toHaveBeenCalledWith(undefined, JSON.stringify(mockedResponse));
+        describe('if no inline keyboard', () => {
+            beforeAll(() => {
+                requestPostSpy.mockClear();
+                sut.sendMessage({
+                    chatId: CHAT_ID,
+                    message: MESSAGE
+                }, CALLBACK_MOCK);
+            });
+
+            it('should send post request with correct params', function() {
+                expect(requestPostSpy).toHaveBeenCalledWith({
+                    url: 'some.api/SOME_TOKEN/sendMessage',
+                    strictSSL: false,
+                    json: {
+                        chat_id: CHAT_ID,
+                        text: MESSAGE,
+                        reply_markup: {
+                            inline_keyboard: undefined
+                        }
+                    }
+                }, expect.any(Function));
+            });
+        });
+
+        describe('if error response from telegram', () => {
+            beforeAll(() => {
+                mockedResponse = {
+                    ok: true
+                };
+                loggernErrorSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(new Error('Some error'), undefined, mockedResponse);
+                });
+                sut.sendMessage({
+                    chatId: CHAT_ID,
+                    message: MESSAGE
+                });
+            });
+
+            it('should write error to log', function() {
+                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('if bad response from telegram', () => {
+            beforeAll(() => {
+                loggernErrorSpy.mockClear();
+                request.post.mockImplementation((config, callback) => {
+                    return callback(undefined, undefined, { ok: false });
+                });
+                sut.sendMessage({
+                    chatId: CHAT_ID,
+                    message: MESSAGE
+                });
+            });
+
+            it('should write error to log', function() {
+                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('if no callback in arguments', () => {
+            beforeAll(() => {
+                CALLBACK_MOCK.mockClear();
+                requestPostSpy.mockClear();
+                sut.sendMessage({
+                    chatId: CHAT_ID,
+                    message: MESSAGE,
+                    inlineKeyboard: INLINE_KEYBOARD
+                });
+            });
+
+            it('shouldn\'t call callback', function() {
+                expect(CALLBACK_MOCK).not.toHaveBeenCalled();
+            });
         });
     });
 });

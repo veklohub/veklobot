@@ -19,33 +19,30 @@ const callbackRetry = (fn, callback, retriesCount, ms) => {
     });
 };
 
-const getUSDRate = (chatId) => {
+const getUSDRate = (chatId, isFirstTime) => {
     if (!chatId) {
         return logger.error('Cannot handle without chatId');
     }
 
     callbackRetry(exchangeRateGetter.getNBUExchangeRate,(error, exchangeRates) => {
-        let text = '';
+        let message = '';
         if (error) {
             logger.error(`NBU API responsed with the error: ${error}`);
 
-            text = 'Не могу получить курс доллара';
+            message = 'Не могу получить курс доллара';
         } else {
             const USDRate = exchangeRates ? exchangeRates.find((rate) => rate.cc === 'USD') : {};
-            text = `Курс доллара (НБУ) сегодня - ${USDRate.rate}`;
+            message = `Курс доллара (НБУ) сегодня - ${USDRate.rate}`;
         }
 
-        telegramMessageSender.sendMessage(
+        if (isFirstTime) {
+            message = `${message}. В дальнейшем я буду присылать тебе курс доллара каждый будний день в 10 утра`;
+        }
+
+        telegramMessageSender.sendMessage({
             chatId,
-            text,
-            (error, result) => {
-                if (error || !result.ok) {
-                    logger.error(`Message to telegram API wasn't delivered: ${error || JSON.stringify(result)}`);
-                } else {
-                    logger.info(`Message was sucsessfully sent to user: ${JSON.stringify(result)}`);
-                }
-            }
-        );
+            message
+        });
     });
 };
 

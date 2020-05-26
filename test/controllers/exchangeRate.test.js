@@ -27,6 +27,8 @@ describe('exchangeRate controller', function() {
         let getNBUExchangeRateSpy;
         let sendMessageSpy;
 
+        const CHAT_ID = 'SOME_CHAT_ID';
+
         beforeAll(() => {
             loggernErrorSpy = jest.spyOn(logger, 'error');
             loggerInfoSpy = jest.spyOn(logger, 'info');
@@ -53,7 +55,7 @@ describe('exchangeRate controller', function() {
                 expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
             });
 
-            it('shouldn\'t call NBU API error to log', function() {
+            it('shouldn\'t call NBU API', function() {
                 expect(getNBUExchangeRateSpy).not.toHaveBeenCalled();
             });
 
@@ -73,7 +75,7 @@ describe('exchangeRate controller', function() {
                         rate: 25
                     }]);
                 });
-                sut.getUSDRate('SOME_CHAT_ID');
+                sut.getUSDRate(CHAT_ID);
             });
 
             it('should call NBU API', function() {
@@ -85,6 +87,32 @@ describe('exchangeRate controller', function() {
             });
         });
 
+        describe('if called first time', () => {
+
+            beforeAll(() => {
+                getNBUExchangeRateSpy.mockClear();
+                sendMessageSpy.mockClear();
+                exchangeRateGetter.getNBUExchangeRate.mockImplementationOnce((callback) => {
+                    callback(undefined, [{
+                        cc: 'USD',
+                        rate: 25
+                    }]);
+                });
+                sut.getUSDRate(CHAT_ID, true);
+            });
+
+            it('should call NBU API', function() {
+                expect(getNBUExchangeRateSpy).toHaveBeenCalledTimes(1);
+            });
+
+            it('should send message to telegram API', function() {
+                expect(sendMessageSpy).toHaveBeenCalledWith({
+                    chatId: CHAT_ID,
+                    message: 'Курс доллара (НБУ) сегодня - 25. В дальнейшем я буду присылать тебе курс доллара каждый будний день в 10 утра'
+                });
+            });
+        });
+
         describe('if NBU  API returns empty response without error and result', () => {
 
             beforeAll(() => {
@@ -93,7 +121,7 @@ describe('exchangeRate controller', function() {
                 exchangeRateGetter.getNBUExchangeRate.mockImplementationOnce((callback) => {
                     callback();
                 });
-                sut.getUSDRate('SOME_CHAT_ID');
+                sut.getUSDRate(CHAT_ID);
             });
 
             it('should call NBU API', function() {
@@ -119,7 +147,7 @@ describe('exchangeRate controller', function() {
                         rate: 25
                     }]);
                 });
-                sut.getUSDRate('SOME_CHAT_ID');
+                sut.getUSDRate(CHAT_ID);
                 jest.runAllTimers();
             });
 
@@ -140,7 +168,7 @@ describe('exchangeRate controller', function() {
                 exchangeRateGetter.getNBUExchangeRate.mockImplementation((callback) => {
                     callback('SOME_ERROR');
                 });
-                sut.getUSDRate('SOME_CHAT_ID');
+                sut.getUSDRate(CHAT_ID);
                 jest.runAllTimers();
             });
 
@@ -150,72 +178,6 @@ describe('exchangeRate controller', function() {
 
             it('should send message to telegram API', function() {
                 expect(sendMessageSpy).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        describe('if telegram API responses with error', () => {
-
-            beforeAll(() => {
-                loggernErrorSpy.mockClear();
-                exchangeRateGetter.getNBUExchangeRate.mockImplementationOnce((callback) => {
-                    callback(undefined, [{
-                        cc: 'USD',
-                        rate: 25
-                    }]);
-                });
-                telegramMessageSender.sendMessage.mockImplementation((chatId, text, callback) => {
-                    callback('SOME_ERROR');
-                });
-                sut.getUSDRate('SOME_CHAT_ID');
-            });
-
-            it('should write error to log', function() {
-                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        describe('if telegram API responses with bad result', () => {
-
-            beforeAll(() => {
-                loggernErrorSpy.mockClear();
-                exchangeRateGetter.getNBUExchangeRate.mockImplementationOnce((callback) => {
-                    callback(undefined, [{
-                        cc: 'USD',
-                        rate: 25
-                    }]);
-                });
-                telegramMessageSender.sendMessage.mockImplementation((chatId, text, callback) => {
-                    callback(undefined, {
-                        ok: false,
-                        message: 'Something went wrong'
-                    });
-                });
-                sut.getUSDRate('SOME_CHAT_ID');
-            });
-
-            it('should write error to log', function() {
-                expect(loggernErrorSpy).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        describe('if telegram API sends message successfully', () => {
-
-            beforeAll(() => {
-                loggerInfoSpy.mockClear();
-                exchangeRateGetter.getNBUExchangeRate.mockImplementationOnce((callback) => {
-                    callback(undefined, [{
-                        cc: 'USD',
-                        rate: 25
-                    }]);
-                });
-                telegramMessageSender.sendMessage.mockImplementation((chatId, text, callback) => {
-                    callback(undefined, { ok: true });
-                });
-                sut.getUSDRate('SOME_CHAT_ID');
-            });
-
-            it('should write info to log twice', function() {
-                expect(loggerInfoSpy).toHaveBeenCalledTimes(2);
             });
         });
     });

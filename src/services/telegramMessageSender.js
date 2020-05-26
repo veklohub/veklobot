@@ -3,6 +3,7 @@ const request = require('request');
 const config = require('config');
 const moment = require('moment');
 
+const logger = require('../common/logger');
 const { hideTelegramBotToken } = require('./strings');
 
 const TELEGRAM_API_URL = `${config.get('telegram.apiUrl')}${config.get('telegram.botToken')}/`;
@@ -55,16 +56,27 @@ const getWebhookInfo = (callback) => {
     });
 };
 
-const sendMessage = (chatId, message, callback) => {
+const sendMessage = (options, callback) => {
     request.post({
         url: `${TELEGRAM_API_URL}sendMessage`,
         strictSSL: false,
         json: {
-            chat_id: chatId,
-            text: message
+            chat_id: options.chatId,
+            text: options.message,
+            reply_markup: {
+                inline_keyboard: options.inlineKeyboard
+            }
         }
     }, function(error, response, body) {
-        callback(error, body);
+        if (error || !body.ok) {
+            logger.error(`Message to telegram API wasn't delivered: ${error || JSON.stringify(body)}`);
+        } else {
+            logger.info(`Message was sucsessfully sent to user: ${JSON.stringify(body)}`);
+        }
+
+        if (callback) {
+            callback(error, body);
+        }
     });
 };
 

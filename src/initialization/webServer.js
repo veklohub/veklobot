@@ -3,6 +3,7 @@ const express = require('express');
 const https = require('https');
 
 const logger = require('../common/logger');
+const stringsUtils = require('../services/strings');
 const messageHandler = require('../controllers/messageHandler');
 const healthCheck = require('../controllers/healthcheck');
 
@@ -12,7 +13,7 @@ const initWebserver = (webServerConfig) => {
     app.use(express.json());
 
     app.all('*', (request, response, next) => {
-        logger.info(`Get request to ${request.path}`);
+        logger.info(`Get request to ${stringsUtils.hideTelegramBotToken(request.path)}`);
         next();
     });
 
@@ -29,7 +30,7 @@ const initWebserver = (webServerConfig) => {
     const URL_FOR_TELEGRAM_WEBHOOK = webServerConfig.urlForTelegramWebhook;
     app.post(URL_FOR_TELEGRAM_WEBHOOK, (request, response) => {
         logger.info(`Get webhook request from Telegram: ${JSON.stringify(request.body)}`);
-        messageHandler(request.body.message);
+        messageHandler(request.body.message || request.body.callback_query);
         response.end();
     }).on('error', (error) => {
         logger.error(error);

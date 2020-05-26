@@ -1,3 +1,9 @@
 module.exports = {
-    DOLLAR_RATE: '/dollar_rate'
+    START: {
+        command: '/start'
+    },
+    DOLLAR_RATE: {
+        command: '/dollar_rate',
+        description: 'Курс доллара (НБУ)'
+    }
 };

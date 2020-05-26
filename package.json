@@ -31,10 +31,10 @@
     "setupFilesAfterEnv": ["<rootDir>/test/config/momentMock.js"],
     "coverageThreshold": {
       "global": {
-        "statements": 71.1,
-        "branches": 71.7,
-        "functions": 70.5,
-        "lines": 70.4
+        "statements": 72.1,
+        "branches": 76.6,
+        "functions": 69.7,
+        "lines": 71.5
       }
     }
   }
